@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Side-Channel Analysis Research Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #00d4ff;
+            --secondary-color: #ff6b6b;
+            --accent-color: #4ecdc4;
+            --warning-color: #ffd93d;
+            --success-color: #6bcf7f;
+            
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #111111;
+            --bg-tertiary: #1a1a1a;
+            --bg-card: #151515;
+            --bg-hover: #1f1f1f;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #b3b3b3;
+            --text-muted: #666666;
+            
+            --border-color: #333333;
+            --shadow-color: rgba(0, 212, 255, 0.1);
+            --glow-color: rgba(0, 212, 255, 0.3);
+            
+            --font-primary: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Particle Background */
+        .particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideInDown 1s ease-out;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .logo img {
+            height: 60px;
+            filter: drop-shadow(0 0 10px var(--glow-color));
+            transition: all 0.3s ease;
+        }
+        
+        .logo img:hover {
+            filter: drop-shadow(0 0 20px var(--primary-color));
+            transform: scale(1.05);
+        }
+        
+        .logo-text {
+            font-family: var(--font-mono);
+            font-size: 1.5rem;
+            font-weight: 600;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .literature-content {
+    font-size: 1.3rem;      /* Increases font size slightly (≈17.6px) */
+    line-height: 1.6;       /* Adds vertical spacing between lines */
+    color: #ffffff;            /* Slightly darker, more readable text */
+    margin-bottom: 2rem;    /* Adds spacing after the entire content block */
+}
+.literature-content p {
+    margin-bottom: 1.2rem;  /* Adds spacing between each paragraph */
+}
+
+        
+        /* Enhanced Navigation */
+        nav {
+            margin-left: auto;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 0.5rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        nav ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            padding: 0.8rem 1.5rem;
+            border-radius: 15px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+        
+        nav ul li a i {
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+        
+        /* Gradient hover effect */
+        nav ul li a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+        }
+        
+        nav ul li a:hover::before {
+            opacity: 1;
+        }
+        
+        nav ul li a:hover {
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.4);
+        }
+        
+        nav ul li a:hover i {
+            transform: rotate(5deg) scale(1.1);
+        }
+        
+        /* Active state */
+        nav ul li a.active {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-primary);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+        
+        /* Mobile menu toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--primary-color);
+        }
+        
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 8rem 0;
+            text-align: center;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.1) 0%, transparent 70%);
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent 30%, rgba(0, 212, 255, 0.03) 50%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+        
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary-color) 50%, var(--accent-color) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.8s both;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.1s both;
+        }
+        
+        .buttons-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 3rem;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.4s both;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+            color: var(--bg-primary);
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--primary-color);
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+        }
+        
+        /* Section Styling */
+        section {
+            padding: 6rem 0;
+            position: relative;
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        
+        .section-title.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-title h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            margin: 1.5rem auto;
+            border-radius: 2px;
+        }
+        
+        /* About Section */
+        #about {
+            background: var(--bg-secondary);
+        }
+        
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .about-text {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 0.8s ease;
+        }
+        
+        .about-text.animate {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .about-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+        
+        .about-image {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.8s ease 0.2s;
+        }
+        
+        .about-image.animate {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .about-placeholder {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-hover));
+            height: 400px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .about-placeholder::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%); }
+            100% { transform: translateX(100%) translateY(100%); }
+        }
+        
+        /* Audience Section */
+        #audience {
+            background: var(--bg-primary);
+        }
+        
+        .audience-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .audience-item {
+            background: var(--bg-card);
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .audience-item.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .audience-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+            border-color: var(--primary-color);
+        }
+        
+        .audience-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2rem;
+            transition: all 0.4s ease;
+        }
+        
+        .audience-item:hover .audience-icon {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 10px 30px var(--glow-color);
+        }
+        
+        .audience-item h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .audience-item p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+        
+        /* Goals Section */
+        #research {
+            background: var(--bg-secondary);
+        }
+        
+        .goals-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+        
+        .goal-item {
+            background: var(--bg-card);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            position: relative;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .goal-item.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .goal-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.15);
+            border-color: var(--accent-color);
+        }
+        
+        .goal-item h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .goal-item h3::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(180deg, var(--primary-color), var(--accent-color));
+            border-radius: 2px;
+        }
+        
+        /* Team Section */
+        #team {
+            background: var(--bg-primary);
+        }
+        
+        .team-members {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+        
+        .team-member {
+            background: var(--bg-card);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .team-member.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 212, 255, 0.2);
+        }
+        
+        .member-image {
+            height: 250px;
+            background: linear-gradient(135deg, var(--bg-hover), var(--bg-tertiary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .member-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        
+        .team-member:hover .member-image img {
+            transform: scale(1.1);
+        }
+        
+        .member-info {
+            padding: 2rem;
+        }
+        
+        .member-info h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+        
+        .member-position {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 1rem;
+            font-family: var(--font-mono);
+        }
+        
+        .member-info p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Publications Section */
+        #publications {
+            background: var(--bg-secondary);
+        }
+        
+        .publications-list {
+            display: grid;
+            gap: 2rem;
+        }
+        
+        .publication-item {
+            background: var(--bg-card);
+            padding: 3rem;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .publication-item.animate {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .publication-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 212, 255, 0.15);
+            border-color: var(--accent-color);
+        }
+        
+        .publication-item h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+        
+        .publication-authors {
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+        
+        .publication-journal {
+            color: var(--primary-color);
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+            font-family: var(--font-mono);
+        }
+        
+        .publication-links {
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .publication-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .publication-links a:hover {
+            background: var(--primary-color);
+            color: var(--bg-primary);
+            transform: translateY(-2px);
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+            border-top: 1px solid var(--border-color);
+            padding: 4rem 0 2rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+        
+        .footer-col h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .footer-col p, .footer-col li {
+            color: var(--text-secondary);
+            margin-bottom: 0.8rem;
+            line-height: 1.6;
+        }
+        
+        .footer-col ul {
+            list-style: none;
+        }
+        
+        .footer-col a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .footer-col a:hover {
+            color: var(--primary-color);
+            padding-left: 5px;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            nav ul {
+                gap: 0.25rem;
+                padding: 0.4rem;
+            }
+            
+            nav ul li a {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+            }
+            
+            nav {
+                width: 100%;
+                margin-left: 0;
+            }
+            
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+                background: rgba(255, 255, 255, 0.08);
+                padding: 1rem;
+                border-radius: 15px;
+            }
+            
+            nav ul li a {
+                padding: 0.8rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            
+            .hero {
+                padding: 6rem 0;
+            }
+            
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            
+            .about-image {
+                order: -1;
+            }
+            
+            .buttons-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .audience-list,
+            .goals-list,
+            .team-members {
+                grid-template-columns: 1fr;
+            }
+            
+            section {
+                padding: 4rem 0;
+            }
+        }
+        
+        /* Loading Animation */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Timeline Component Styles */
+.timeline-section {
+    background: var(--bg-secondary, #111111);
+    padding: 6rem 0;
+    position: relative;
+}
+
+.timeline-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.timeline-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.timeline-milestone {
+    color: var(--primary-color, #00d4ff);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.timeline-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--text-primary, #ffffff);
+    margin-bottom: 1rem;
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+/* Main timeline line */
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 1rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(180deg, var(--primary-color, #00d4ff), var(--accent-color, #4ecdc4));
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 3rem;
+    opacity: 0;
+    transform: translateX(-30px);
+    animation: slideInLeft 0.8s ease-out forwards;
+}
+
+.timeline-item:nth-child(1) { animation-delay: 0.2s; }
+.timeline-item:nth-child(2) { animation-delay: 0.4s; }
+.timeline-item:nth-child(3) { animation-delay: 0.6s; }
+.timeline-item:nth-child(4) { animation-delay: 0.8s; }
+.timeline-item:nth-child(5) { animation-delay: 1.0s; }
+.timeline-item:nth-child(6) { animation-delay: 1.2s; }
+.timeline-item:nth-child(7) { animation-delay: 1.4s; }
+.timeline-item:nth-child(8) { animation-delay: 1.6s; }
+
+/* Timeline dot */
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    background: var(--primary-color, #00d4ff);
+    border-radius: 50%;
+    border: 3px solid var(--bg-secondary, #111111);
+    box-shadow: 0 0 0 3px var(--primary-color, #00d4ff);
+    z-index: 2;
+}
+
+.timeline-content {
+    background: var(--bg-card, #151515);
+    border: 1px solid var(--border-color, #333333);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-left: 1rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+    border-color: var(--primary-color, #00d4ff);
+}
+
+/* Timeline content arrow */
+.timeline-content::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 1.5rem;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-right: 8px solid var(--bg-card, #151515);
+}
+
+.timeline-date {
+    background: var(--bg-primary, #0a0a0a);
+    color: var(--text-primary, #ffffff);
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: inline-block;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color, #333333);
+}
+
+.timeline-item-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary, #ffffff);
+    margin-bottom: 0.8rem;
+    line-height: 1.4;
+}
+
+.timeline-description {
+    color: var(--text-secondary, #b3b3b3);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.timeline-marks {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.85rem;
+}
+
+.marks-label {
+    color: var(--text-muted, #666666);
+    font-weight: 500;
+}
+
+.marks-value {
+    color: var(--text-primary, #ffffff);
+    font-weight: 600;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 8px;
+    background: var(--bg-hover, #1f1f1f);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--border-color, #333333);
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-color, #00d4ff), var(--accent-color, #4ecdc4));
+    border-radius: 4px;
+    transition: width 0.8s ease;
+}
+
+/* Status indicators */
+.timeline-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-completed {
+    background: rgba(107, 207, 127, 0.2);
+    color: var(--success-color, #6bcf7f);
+    border: 1px solid var(--success-color, #6bcf7f);
+}
+
+.status-in-progress {
+    background: rgba(255, 217, 61, 0.2);
+    color: var(--warning-color, #ffd93d);
+    border: 1px solid var(--warning-color, #ffd93d);
+}
+
+.status-upcoming {
+    background: rgba(179, 179, 179, 0.2);
+    color: var(--text-secondary, #b3b3b3);
+    border: 1px solid var(--text-secondary, #b3b3b3);
+}
+
+/* Animations */
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .timeline-container {
+        padding: 0 1rem;
+    }
+    
+    .timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline::before {
+        left: 0.75rem;
+    }
+    
+    .timeline-item::before {
+        left: -1.25rem;
+        width: 10px;
+        height: 10px;
+    }
+    
+    .timeline-content {
+        margin-left: 0.5rem;
+        padding: 1.5rem;
+    }
+    
+    .timeline-content::before {
+        left: -6px;
+        border-right-width: 6px;
+        border-top-width: 6px;
+        border-bottom-width: 6px;
+    }
+    
+    .timeline-title {
+        font-size: 2rem;
+    }
+    
+    .timeline-item-title {
+        font-size: 1.1rem;
+    }
+    
+    .timeline-marks {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .progress-bar {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .timeline-section {
+        padding: 4rem 0;
+    }
+    
+    .timeline-content {
+        padding: 1rem;
+    }
+    
+    .timeline-title {
+        font-size: 1.8rem;
+    }
+}
+
+/* Dark theme variables (if not already defined) */
+:root {
+    --primary-color: #00d4ff;
+    --secondary-color: #ff6b6b;
+    --accent-color: #4ecdc4;
+    --warning-color: #ffd93d;
+    --success-color: #6bcf7f;
+    
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-tertiary: #1a1a1a;
+    --bg-card: #151515;
+    --bg-hover: #1f1f1f;
+    
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --text-muted: #666666;
+    
+    --border-color: #333333;
+}
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Particle Background -->
+    <div class="particles-container" id="particles"></div>
+
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Research Project Logo">
+                <div class="logo-text"></div>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="home-page.html" class="active"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#"><i class="fas fa-info-circle"></i> About</a></li>
+                    <li><a href="templates/index.html"><i class="fas fa-sitemap"></i> Demo</a></li>
+                    <li><a href="style3.html"><i class="fas fa-chart-line"></i> Results</a></li>
+                    <li><a href="future_works_html.html"><i class="fas fa-rocket"></i> Future Works</a></li>
+                    <li><a href="resources.html"><i class="fas fa-download"></i> Resources</a></li>
+                    <li><a href="#contact"><i class="fas fa-envelope"></i> Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    
+    <!-- Literature Survey Section -->
+    <section id="literature">
+    <div class="container">
+        <div class="section-title">
+            <h2>Literature Survey</h2>
+        </div>
+        <div class="literature-content">
+            <p>Side-channel attacks (SCAs) present a formidable threat to cryptographic implementations, exploiting physical leakages rather than algorithmic flaws. Among various SCA techniques, power analysis stands out for its simplicity and effectiveness. Techniques like Simple Power Analysis (SPA) and Differential Power Analysis (DPA), introduced by Kocher et al. in 1999, laid the groundwork for modern SCAs.</p>
+
+            <p>While SPA visually interprets patterns in power traces, DPA uses statistical correlation across multiple traces to extract key bits, showing resilience against noise. The evolution of DPA has led to advanced forms like higher-order DPA and Correlation Power Analysis (CPA), the latter introduced by Brier et al. in 2004. CPA improves attack accuracy by correlating predicted intermediate values, modeled using Hamming weight or distance, with actual power traces.</p>
+
+            <p>Over time, the scope of SCAs has expanded beyond smart cards to include microcontrollers, FPGAs, and general-purpose CPUs. Affordable platforms such as Arduino, ESP32, and ChipWhisperer have democratized SCA research, offering educational and experimental opportunities. Symmetric algorithms like DES and AES, and asymmetric ones like RSA, have all shown vulnerabilities to SCAs. DES, in particular, has been a focus due to its structured 16-round Feistel design, which leaks data-dependent power consumption—especially in its S-box and key scheduling operations.</p>
+
+            <p>Preprocessing steps like trace alignment, noise filtering, and dimensionality reduction (e.g., PCA) are critical for improving attack success rates on noisy, software-based systems. To combat SCAs, various countermeasures have emerged, such as masking, hiding, and randomization. Masking injects randomness to obscure key-dependent computations but is vulnerable to higher-order attacks. Hiding strategies, like inserting dummy instructions or balancing current draw, reduce distinguishable power patterns, while randomization shuffles execution sequences or injects noise to reduce trace predictability. These solutions, however, often involve trade-offs in performance, complexity, or compatibility.</p>
+
+            <p>Machine learning (ML) has further advanced SCA methodologies. ML techniques—ranging from SVMs and decision trees to deep learning models like convolutional neural networks (CNNs) and recurrent networks (e.g., LSTM)—have demonstrated remarkable ability in key recovery tasks, especially under noisy or misaligned conditions. CNNs excel in analyzing power traces (spatial data), whereas LSTMs are effective on timing information (temporal data). While tools like ASCAD have benchmarked ML-based attacks primarily on AES, less attention has been given to DES or to timing-based attacks in embedded systems.</p>
+
+            <p>Timing SCAs, though often underestimated, are particularly threatening due to their non-invasive nature. First introduced by Kocher, timing attacks exploit execution time variations, such as those introduced by conditional branching or data-dependent memory access patterns. DES, although deterministic, can still exhibit minute timing variations based on Hamming distances and key dependencies. Boneh and Brumley later demonstrated remote timing attacks across networks, further highlighting the real-world feasibility of these threats. However, practical demonstrations of timing SCAs on affordable platforms like Raspberry Pi remain sparse.</p>
+
+            <p>Timestamp-based key generation represents another often-overlooked vulnerability. Systems that rely on predictable timestamps for entropy can be trivially brute-forced. While public-key systems have been shown to suffer from weak entropy sources, similar studies for symmetric algorithms like DES are lacking. Raspberry Pi, with its accessibility and realistic computing environment, serves as an ideal platform for exploring such vulnerabilities.</p>
+
+            <p>Electromagnetic (EM) SCAs are similarly concerning due to their non-contact nature. Cryptographic operations generate EM emissions that can be captured and analyzed using tools like CPA or DPA. Microcontrollers and embedded systems are particularly vulnerable due to limited hardware protections. Although ML-based EM analysis has gained traction, it is often limited to costly lab equipment, which hinders adoption in educational or low-resource settings.</p>
+
+            <p>This thesis addresses these gaps through a unified, lightweight countermeasure framework focused on DES. It introduces a three-pronged masking strategy: dynamic XOR masking, tokenized indexing, and format-preserving scrambling. These methods disrupt side-channel leakage at the round level, ensuring compatibility with both DES and 3DES implementations. Importantly, the countermeasures maintain ciphertext format and support existing decryption environments without architectural changes.</p>
+
+            <p>The work also incorporates practical SCA analysis using ML. One component demonstrates real-time DES key prediction from timing data using LSTM networks deployed on a Raspberry Pi. Another builds a portable EM side-channel detection toolkit based on ML models, offering a cost-effective, hands-on educational platform.</p>
+
+            <p>In conclusion, this research bridges the gap between theoretical cryptographic strength and real-world physical vulnerability. It provides a practical upgrade path for securing legacy DES-based systems, while also laying the foundation for adapting similar protections to modern block ciphers like AES.</p>
+        </div>
+    </div>
+</section>
+
+<div class="timeline-container">
+        <div class="section-title">
+            <h2>Timeline in Brief</h2>
+        </div>
+        
+        <div class="timeline">
+            <!-- Timeline Item 1 -->
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">May 2024</div>
+                    <h3>Topic Assessment Form (TAF)</h3>
+                    <p>The proposed project was presented to the academic panel.The panel reviewed the topics scope, feasibility, and relevance.</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 2 -->
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">July 2024</div>
+                    <h3>Proposal presentation</h3>
+                    <p>Research goals, methods, and expected outcomes were presented.The panel reviewed the proposal and gave feedback.</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 3 -->
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">December 2024</div>
+                    <h3>Progress Presentation 1</h3>
+                    <p>Preliminary results from the research were discussed. The panel provided constructive feedback for the next development phase.</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 4 -->
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">March 2025</div>
+                    <h3>Research Paper Submission</h3>
+                    <p>The research paper was submitted.The paper included theoretical analysis, experimental setup, and early results. </p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 5 -->
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">April 2025</div>
+                    <h3>Final Report Submission</h3>
+                    <p>This submission marked the completion of the research documentation phase.</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 6 -->
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">March 2025</div>
+                    <h3>Progress Presentation 2</h3>
+                    <p>The hardware power and EM analysis prototype was demonstrated and Results from ML-based timing attacks using LSTM models were presented.This presentation guided the final phases of the project.</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 7 -->
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">May 2025</div>
+                    <h3>The Final Presentation & VIVA</h3>
+                    <p>The panel evaluated the research rigor and answered questions during the viva. This event marked the formal conclusion of the research project.</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 8 -->
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">May 2025</div>
+                    <h3>Project website</h3>
+                    <p>The Website helps to promote our research project and reveals all details related to the project.</p>
+                    <div class="marks-section">
+                        <span class="marks-label">Marks Allocated:</span>
+                        <span class="marks-value">20</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timeline Item 9 -->
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">June 2025</div>
+                    <h3>LogBook Submission</h3>
+                    <p>Status of the project is validated through the Logbook. This also includes, Status documents 1 & 2. </p>
+                    <div class="marks-section">
+                        <span class="marks-label">Marks Allocated:</span>
+                        <span class="marks-value">20</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+    </div>
+
+
+<!-- Research Gap Section -->
+<section id="literature">
+    <div class="container">
+        <div class="section-title">
+            <h2>Research Gap</h2>
+        </div>
+        <div class="literature-content">
+            <p>Despite substantial progress in side-channel analysis (SCA), critical gaps persist particularly in practical, reproducible, and cost-effective studies focused on legacy encryption algorithms like DES. The vast majority of existing research concentrates on AES and depends heavily on high-end laboratory equipment, which limits accessibility and scalability.</p>
+
+            <p>DES remains under-investigated, especially on widely available platforms like the Raspberry Pi. Timing attacks, while theoretically straightforward, have yet to see robust real-world implementations leveraging modern machine learning (ML) techniques on resource-constrained devices. Power and electromagnetic (EM) side-channel attacks, though potent, are often constrained by the high cost of instrumentation and the level of technical expertise required.</p>
+
+            <p>Moreover, there is a striking lack of comprehensive studies that explore multi-leakage vectors—such as the combined analysis of timing, power, and EM signals. Current countermeasures primarily target AES and overlook vulnerabilities specific to DES operating modes like ECB and CBC.</p>
+
+            <p>This creates an urgent need for a unified, accessible, and scalable platform capable of supporting DES-focused SCA research and countermeasure development. Such a platform should integrate ML-based defenses and operate effectively on low-cost hardware, closing the gap between theoretical vulnerability and practical security.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Research Problem Section -->
+<section id="literature">
+    <div class="container">
+        <div class="section-title">
+            <h2>Research Problem</h2>
+        </div>
+        <div class="literature-content">
+            <p>This study focuses on improving the resilience of the Data Encryption Standard (DES) against physical side-channel attacks (SCAs) in resource-limited and legacy environments. Despite its theoretical security, DES implementations are vulnerable to attacks exploiting unintended leakages like power consumption and electromagnetic emissions, especially in embedded systems and IoT devices that often lack adequate protections. To address this, the study proposes a novel three-layer masking method combining Dynamic XOR Masking, Tokenized Indexing, and Format-Preserving Scrambling. These techniques introduce dynamic, input-dependent masks, randomize memory access patterns, and maintain data format integrity, respectively. This modular, mode-independent approach allows seamless integration with existing DES operations in ECB and CBC modes without altering external behavior or requiring system overhauls.</p>
+
+            <p>The research further aims to theoretically and empirically validate the effectiveness of the masking framework. It demonstrates how the masking increases entropy in key-dependent intermediate values, reducing the effectiveness of attacks such as Differential Power Analysis (DPA) and Correlation Power Analysis (CPA), while maintaining minimal computational and memory overhead. Empirical validation involves simulating power and timing leakages, and applying various SCA methods to both masked and unmasked DES, evaluating security improvements using metrics like signal-to-noise ratio (SNR) and mutual information analysis (MIA). Finally, the study explores the feasibility of deploying the masking scheme in existing constrained environments like embedded systems and legacy hardware, ensuring compatibility and practical applicability without disrupting current cryptosystems. This work bridges theoretical cryptographic security and practical implementation, providing a viable solution to protect legacy encryption against modern side-channel threats.
+
+</p>
+        </div>
+    </div>
+</section>
+
+<!-- Research Objectives Section -->
+<section id="literature">
+    <div class="container">
+        <div class="section-title">
+            <h2>Research Objectives</h2>
+        </div>
+        <div class="literature-content">
+            <p>On top of this the LSTM-based key prediction system introduces sophisticated machine learning 
+into the mix by learning models from encryption timing characteristics (i.e., Hamming weight and 
+distance) in order to predict DES key bits. Targeted towards graduate users and researchers, the 
+module demonstrates how side-channel exploitation can be streamlined through subtle leakages in 
+system timing using AI, and as a result the module serves as a benchmarking tool for side-channel 
+research alongside countermeasure testing for masking or constant-time execution. </p>
+
+            <p>The third component, an applied hardware security focused power/EM analysis prototype at the 
+hardware level rounds out the platform. Built with low cost components and open source software 
+it is a practical toolset for the detection and modeling of side channel vulnerability that is ideal for 
+university labs, student capstone projects, and resource constrained research environments. Its plug 
+and-play functionality  real-time processing of traces and availability for further development 
+make it a game-changer for education and security validation in its earliest stages.</p>
+
+            <p> Together  this platform introduces cybersecurity training, research innovation, and industry-level 
+testing closing the divide between theory and practice. By overcoming existing obstacles in 
+accessibility, affordability, and usability, it has the potential to become a broadly used solution for 
+education, prototyping, and verification of cryptographic side-channel resistance in embedded 
+systems and more.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Methodology Section -->
+<section id="literature">
+    <div class="container">
+        <div class="section-title">
+            <h2>Methodology</h2>
+        </div>
+        <div class="literature-content">
+            <h1>Power-Based Side-Channel Attack Analysis</h1>
+
+    <p>This project outlines the development of a power-based side-channel attack system targeting the DES encryption algorithm. The system includes embedded hardware for real-time power measurement, data preprocessing, and machine learning-based key inference. The core goal was to capture power traces during encryption and use these to predict plaintext and encryption keys.</p>
+
+    <p>Initial implementation used the Arduino Nano and INA219 power sensor to log voltage, current, power, and energy during encryption. Due to memory and processing constraints, the system was upgraded to the ESP32 microcontroller, which allowed for real-time display, Bluetooth communication, and extended processing capability.</p>
+
+    <p>The final system included a microSD module for logging, a 16x2 LCD for displaying results, and Bluetooth commands for control. The ESP32 periodically polled the INA219 sensor and logged cumulative energy data.</p>
+
+    <p>The system supported command-based control through Bluetooth:</p>
+   <ul style="margin-left: 50px;">
+    <li><strong>STARTLOG:</strong> Starts logging and resets counters.</li>
+    <li><strong>STOPLOG:</strong> Stops logging and flushes data.</li>
+    <li><strong>GETLOG:</strong> Sends logged data to the user.</li>
+</ul>
+
+    <p>Python was used for preprocessing the raw sensor data. For each encryption event, 16 statistical features were extracted (mean, max, min, and standard deviation for voltage, current, power, and energy). Features were normalized and encoded to prepare them for machine learning.</p>
+
+    <p>An MLP neural network with three hidden layers (128, 64, 32 neurons) was built using TensorFlow. Trained for 1000 epochs with batch size 16, the model achieved 84% accuracy in plaintext prediction. The model and its encoders/scalers were serialized for deployment on embedded hardware for live prediction.</p>
+
+    <p>Real-world encryption sessions were executed to test the full system. The ESP32 processed power data in real-time, and the machine learning model predicted plaintext and key values, which were displayed on an LCD. Bluetooth enabled remote control and validation of the system’s functionality.</p>
+
+    <p>The system demonstrated a complete low-power, low-cost, and effective methodology for power-based side-channel cryptanalysis using embedded hardware and AI. It is modular and can be adapted for other algorithms, such as AES, or include countermeasures.</p>
+    <br></br>
+    <h1>Time-Based Side-Channel Attack Analysis</h1>
+    
+    <p>This section introduces two timing-based strategies to infer DES encryption keys: timestamp-based key generation and deep learning using LSTM to exploit timing variations in encryption latency.</p>
+
+    <p>The system simulates scenarios where DES keys are generated using Unix timestamps. Keys are generated for a time window and compared to a target key using byte-level and bit-level similarity. The most similar keys are ranked and reported, showcasing the vulnerability of deterministic key generation from time-based entropy sources.</p>
+
+    <p>An LSTM network was trained to predict 64-bit DES keys based on encryption latency and side-channel features such as Hamming weights and distances. These features were normalized and input as sequences suitable for LSTM processing. The model used sigmoid-activated outputs and binary crossentropy loss to predict each key bit independently.</p>
+
+    <p>The LSTM model was tested with various combinations of features, confirming that prediction accuracy improved with the addition of timing and statistical features. Final output was compared visually with actual keys to evaluate prediction accuracy.</p>
+
+    <p>The combined approaches demonstrate the risks of timing leakage in cryptographic systems. Timestamp analysis reveals predictable key generation vulnerabilities, while LSTM modeling shows how timing variations can statistically reveal key structure. Both methods emphasize the importance of securing implementations against side-channel threats.</p>
+    <br></br>
+     <h1>EM Analysis Methodology</h1>
+    
+    <p>The primary objective of this research was to develop a portable hardware-based system capable of detecting side-channel vulnerabilities through the analysis of electromagnetic (EM) traces using machine learning. The following methodology outlines the critical stages in achieving this from dataset preparation to final hardware deployment and evaluation.</p>
+
+    <p>At this stage of the research, the aim was to develop a quality dataset that would be used to train a machine learning model to detect electromagnetic (EM) side-channel vulnerabilities. Due to time and equipment limitations, new EM traces could not be obtained in a laboratory setting; therefore, the research team utilized pre-existing validated datasets containing EM signals generated during encryption processes with the DES algorithm.</p>
+
+    <p>All traces captured the unique EM activity emitted by hardware during encryption using a 16-digit plaintext and a 16-digit key. These traces served as the input data for the machine learning model. Each trace was labeled as either "Vulnerable" or "Non-Vulnerable" using a threshold derived from the mean value of the trace. Traces with mean values above the threshold were labeled as vulnerable, and those below as non-vulnerable.</p>
+
+    <p>This minimalistic labeling approach reduced computational complexity while still providing enough information for the machine learning model to learn useful classification patterns. Before feeding the EM traces to the model, preprocessing was performed to improve model efficiency and adapt to limited hardware support.</p>
+
+    <p>Normalization was used to standardize EM signal values, typically to a zero mean and one standard deviation. This helped reduce bias from differences in magnitudes and ensured consistency across traces. Feature extraction followed, using statistical features—mean, standard deviation, and variance—to summarize trace behavior with minimal computational cost.</p>
+
+    <p>This approach balanced simplicity and effectiveness, enabling real-time analysis on resource-constrained platforms like the Raspberry Pi. The lightweight feature set supported low-resource deployment without sacrificing classification accuracy.</p>
+
+    <p>Four machine learning models were evaluated for classifying EM traces: Logistic Regression, Support Vector Machine (SVM), Decision Tree, and Random Forest. These models offered different trade-offs between accuracy, complexity, and computational requirements.</p>
+
+    <p>Each model was trained using the preprocessed statistical features. Performance was evaluated using accuracy, precision, and recall. Random Forest consistently achieved the highest accuracy, thanks to its ensemble of decision trees which reduced overfitting and improved pattern detection.</p>
+
+    <p>Due to its performance and reasonable resource requirements, Random Forest was selected for deployment. It struck the right balance between accuracy and feasibility for real-time embedded implementation.</p>
+
+    <p>The trained Random Forest model was deployed on a Raspberry Pi 4 Model B, chosen for its affordability, Python support, and GPIO capabilities. Raspberry Pi OS (64-bit) was used for compatibility and performance. A headless setup enabled remote installation via SSH.</p>
+
+    <p>Raspberry Pi Connect was used for GUI and terminal access via Wi-Fi, allowing remote control and testing. Necessary Python libraries—NumPy, pandas, scikit-learn, and GPIO libraries—were installed to support model inference and hardware communication.</p>
+
+    <p>A 16x2 LCD display was connected to the Raspberry Pi using GPIO. Python code was developed to display classification results, offering portable, real-time output without needing external monitors.</p>
+
+    <p>The process involved remotely inputting a 16-digit key and plaintext combination. Rather than encrypting in real time, the system fetched a matching EM trace from the dataset. This trace was fed into the trained classifier, which determined and displayed the vulnerability status on the LCD.</p>
+
+    <p>The final system was portable, low-cost, and independent of lab-grade hardware, making it ideal for educational and small-scale research environments—fulfilling the project's goals of accessibility and simplicity.</p>
+    <br></br>
+    <h1>Masking Technique</h1>
+
+    <p>This paper presents a universal countermeasure framework to enhance the resistance of DES implementations against side-channel attacks such as Differential Power Analysis (DPA) and cache-timing attacks. The methodology consists of two main components: Framework Design and Masking Integration and Evaluation.</p>
+
+    <p>The approach involves a hybrid masking technique using three complementary countermeasures that provide layered defense across different stages of the DES encryption process while maintaining compatibility and performance.</p>
+
+    <p>The first technique introduces randomness at the input stage by applying an XOR operation between the plaintext and a pseudo-randomly generated mask. This dynamic masking alters the intermediate states during encryption, preventing deterministic correlations between inputs and side-channel emissions, thus mitigating first-order DPA attacks.</p>
+
+    <p>The second technique applies Tokenized Indexing to the ciphertext. Tokens are generated based on DES S-box dynamics, and the ciphertext blocks are reordered pseudo-randomly. This disrupts predictable memory access patterns, strengthening resistance to cache-timing and profiling attacks.</p>
+
+    <p>The third countermeasure involves format-preserving scrambling of the permuted ciphertext using a Feistel-based transformation. This reversible scrambling distributes remaining patterns in the ciphertext, enhancing protection against chosen-ciphertext and pattern-matching attacks.</p>
+
+    <p>Together, these three techniques form a multi-layered defense mechanism that protects against a wide range of SCAs including power, EM, and cache-based timing attacks. The framework is adaptable to different stages of encryption for comprehensive protection.</p>
+
+    <p>The integrated masking techniques were embedded into the DES algorithm at strategic points—XOR masking before encryption, Tokenized Indexing after encryption, and format-preserving scrambling as the final step. These modifications introduced unpredictability at every stage while preserving encryption functionality.</p>
+
+    <p>The framework was tested on three platforms: Arduino Uno (low-power microcontroller), Raspberry Pi 4 (embedded system), and Xilinx Spartan-6 (FPGA). These platforms allowed for varied attack models and side-channel measurements including EM, power, and timing data.</p>
+
+    <p>Machine learning models, particularly Convolutional Neural Networks (CNNs), were used to analyze the captured side-channel data and evaluate the frameworks ability to suppress leakages. Performance was measured in terms of DPA resistance, cache-timing attack prevention, and chosen-ciphertext protection.</p>
+
+    <p>A comparative study was conducted to evaluate DES implementations with and without the proposed masking techniques. The results demonstrated significant improvements in side-channel resistance with minimal performance overhead, validating the practicality and efficiency of the framework.</p>
+
+    <p>The balance between added security and low computational cost ensures the framework is lightweight and suitable for real-world cryptographic hardware applications, delivering on its goal of robust, accessible, and efficient side-channel protection.</p>
+
+        </div>
+    </div>
+</section>
+
+<!-- Technologies Used Section -->
+<section id="literature">
+    <div class="container">
+        <div class="section-title">
+            <h2>Technologies Used</h2>
+        </div>
+        <div class="literature-content">
+            <h2>✅ Hardware Technologies</h2>
+  <ul style="margin-left: 50px;">
+    <li><strong>Raspberry Pi (e.g., Raspberry Pi 3/4):</strong> Used as a low-cost embedded platform for cryptographic operations. Suitable for timing, EM, and power-based SCA experiments.</li>
+    <li><strong>Oscilloscope / Logic Analyzer:</strong> For capturing power traces or EM emissions (low-cost versions implied, such as USB-based analyzers).</li>
+    <li><strong>Electromagnetic Probes:</strong> For detecting and recording EM emanations from the processor.</li>
+    <li><strong>Shunt Resistor / Current Sensor:</strong> Inserted in the power line to measure current for power analysis.</li>
+    <li><strong>External ADCs (Analog-to-Digital Converters):</strong> Optional for enhanced sampling if Raspberry Pi ADC resolution is limited.</li>
+    <li><strong>GPIO Interfaces (General Purpose I/O):</strong> Used for trace synchronization and triggering during encryption.</li>
+  </ul>
+  <br></br>
+
+  <h2>✅ Software Technologies</h2>
+  <ul style="margin-left: 50px;">
+    <li><strong>Python:</strong> Used for implementing DES and masked DES algorithms, integrating ML models (e.g., LSTM), and real-time trace acquisition/control.</li>
+    <li><strong>OpenSSL:</strong> Optionally used for reference DES/3DES encryption modules.</li>
+    <li><strong>NumPy / SciPy / Pandas:</strong> For data processing, statistical analysis (SNR, t-tests, mutual information).</li>
+    <li><strong>TensorFlow / PyTorch:</strong> For implementing LSTM models to predict DES key bits from timing data.</li>
+    <li><strong>Matplotlib / Seaborn:</strong> For visualizing timing/power/EM traces and ML outputs.</li>
+    <li><strong>Scikit-learn:</strong> For classical ML models (e.g., Random Forests, SVMs) and baseline evaluations.</li>
+    <li><strong>Serial / PySerial:</strong> To communicate with external measurement devices (if applicable).</li>
+    <li><strong>Jupyter Notebooks:</strong> For interactive development, visualization, and educational demonstration.</li>
+    <li><strong>Linux (Raspbian OS):</strong> Operating system on Raspberry Pi providing development and execution environment.</li>
+    <li><strong>Shell scripting:</strong> For task automation and performance benchmarking.</li>
+  </ul>
+  <br></br>
+
+  <h2>✅ Machine Learning Techniques</h2>
+  <ul style="margin-left: 50px;">
+    <li><strong>Long Short-Term Memory (LSTM) Networks:</strong> To model time-dependent encryption leakage for key prediction.</li>
+    <li><strong>Signal Processing and Feature Engineering:</strong> Includes Hamming weight/distance analysis, trace alignment, and filtering.</li>
+  </ul>
+  <br></br>
+
+  <h2>✅ Security and Cryptography Techniques</h2>
+  <ul style="margin-left: 50px;">
+    <li><strong>Dynamic XOR Masking:</strong> Introduces variable-time data-dependent masks.</li>
+    <li><strong>Tokenized Indexing:</strong> Randomizes access to lookup tables (S-boxes).</li>
+    <li><strong>Format-Preserving Scrambling:</strong> Maintains compatibility with DES modes like ECB and CBC.</li>
+    <li><strong>Differential Power Analysis (DPA) and Correlation Power Analysis (CPA):</strong> Attack models for evaluating masking effectiveness.</li>
+    <li><strong>Template Attacks:</strong> For profiling-based attack simulation.</li>
+  </ul>
+        </div>
+    </div>
+</section>
+
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h3><i class="fas fa-shield-alt"></i> SideChannel.Lab</h3>
+                    <p>A cutting-edge research initiative focused on advancing hardware security through comprehensive side-channel analysis techniques and countermeasure development.</p>
+                    <div style="margin-top: 2rem;">
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-github"></i></a>
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" style="color: var(--primary-color); font-size: 1.5rem; margin-right: 1rem;"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h3><i class="fas fa-link"></i> Quick Navigation</h3>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="#about">About Research</a></li>
+                        <li><a href="architecture.html">System Architecture</a></li>
+                        <li><a href="results.html">Research Results</a></li>
+                        <li><a href="future-works.html">Future Directions</a></li>
+                        <li><a href="resources.html">Resources & Downloads</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h3><i class="fas fa-envelope"></i> Contact Information</h3>
+                    <p><i class="fas fa-university"></i> Department of Computer Systems Engineering</p>
+                    <p><i class="fas fa-building"></i> Sri Lanka Institute of Information Technology</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Malabe, Sri Lanka</p>
+                    <p><i class="fas fa-envelope"></i> chethanike18803@gmail.com</p>
+                    <p><i class="fas fa-phone"></i> +94 71 326 5878</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 SideChannel.Lab Research Project. All Rights Reserved. | Advancing Hardware Security Research</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Loading Animation
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                document.getElementById('loadingOverlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                }, 500);
+            }, 1000);
+        });
+
+        // Particle System
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const nav = document.querySelector('nav');
+        
+        mobileMenuToggle.addEventListener('click', function() {
+            nav.classList.toggle('mobile-open');
+            const icon = this.querySelector('i');
+            if (nav.classList.contains('mobile-open')) {
+                icon.className = 'fas fa-times';
+            } else {
+                icon.className = 'fas fa-bars';
+            }
+        });
+
+        // Intersection Observer for Animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, observerOptions);
+
+        // Initialize animations on DOM load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create particles
+            createParticles();
+
+            // Observe elements for animation
+            const animateElements = document.querySelectorAll(
+                '.section-title, .about-text, .about-image, .audience-item, .goal-item, .team-member, .publication-item'
+            );
+
+            animateElements.forEach(el => {
+                observer.observe(el);
+            });
+
+            // Staggered animation for grid items
+            const gridItems = document.querySelectorAll('.audience-item, .goal-item, .team-member');
+            gridItems.forEach((item, index) => {
+                item.style.transitionDelay = (index * 0.1) + 's';
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Active navigation state
+            const navLinks = document.querySelectorAll('nav ul li a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Dynamic navbar background on scroll
+            window.addEventListener('scroll', function() {
+                const header = document.querySelector('header');
+                if (window.scrollY > 100) {
+                    header.style.background = 'rgba(17, 17, 17, 0.95)';
+                    header.style.backdropFilter = 'blur(20px)';
+                } else {
+                    header.style.background = 'linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%)';
+                    header.style.backdropFilter = 'blur(10px)';
+                }
+            });
+
+            // Enhanced button hover effects
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px) scale(1.02)';
+                });
+                
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Typing effect for hero subtitle
+            const subtitle = document.querySelector('.hero-subtitle');
+            const text = subtitle.textContent;
+            subtitle.textContent = '';
+            
+            let i = 0;
+            const typeWriter = () => {
+                if (i < text.length) {
+                    subtitle.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 100);
+                }
+            };
+            
+            setTimeout(typeWriter, 2000);
+
+            // Parallax effect for hero section
+            window.addEventListener('scroll', () => {
+                const scrolled = window.pageYOffset;
+                const hero = document.querySelector('.hero');
+                const rate = scrolled * -0.5;
+                hero.style.transform = `translateY(${rate}px)`;
+            });
+
+            // Dynamic particle movement based on mouse
+            document.addEventListener('mousemove', (e) => {
+                const particles = document.querySelectorAll('.particle');
+                const x = e.clientX / window.innerWidth;
+                const y = e.clientY / window.innerHeight;
+                
+                particles.forEach((particle, index) => {
+                    const speed = (index % 5 + 1) * 0.5;
+                    const xMove = (x - 0.5) * speed;
+                    const yMove = (y - 0.5) * speed;
+                    particle.style.transform = `translate(${xMove}px, ${yMove}px)`;
+                });
+            });
+        });
+
+        // Performance optimization
+        let ticking = false;
+        function updateParallax() {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero');
+            if (hero) {
+                hero.style.transform = `translateY(${scrolled * -0.3}px)`;
+            }
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                requestAnimationFrame(updateParallax);
+                ticking = true;
+            }
+        });
+    </script>
+</body>
+</html>
